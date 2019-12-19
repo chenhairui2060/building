@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>预览房屋</title>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+		<style type="text/css">
+			body,
+			ul,
+			ol,
+			li,
+			p,
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6,
+			form,
+			fieldset,
+			table,
+			td,
+			img,
+			div {
+				margin: 0;
+				padding: 0;
+				border: 0;
+			}
+
+			body {
+				background: #fff;
+				color: #333;
+				font-size: 12px;
+				font-family: "SimSun", "宋体", "Arial Narrow";
+			}
+
+			ul,
+			ol {
+				list-style-type: none;
+			}
+
+			select,
+			input,
+			img,
+			select {
+				vertical-align: middle;
+			}
+
+			a {
+				text-decoration: none;
+			}
+
+			a:link {
+				color: #009;
+			}
+
+			a:visited {
+				color: #800080;
+			}
+
+			a:hover,
+			a:active,
+			a:focus {
+				color: #c00;
+				text-decoration: underline;
+			}
+
+			.content {
+				width: 810px;
+				margin: 100px auto;
+			}
+
+			.header {
+				width: 810px;
+				height: 46px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.header-item {
+				height: 100%;
+				width: 24.8%;
+				text-align: center;
+				background: #ff9900;
+				color: #FFFFFF;
+				line-height: 46px;
+				font-size: 16px;
+			}
+
+			.body {
+				width: 810px;
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.operate-box {
+				height: 68px;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+			}
+
+			.operate-bottom {
+				height: 68px;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-top: 30px;
+			}
+
+			.operate-bottom-inside {
+				width: 420px;
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.operate {
+				width: 290px;
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.operate-item {
+				height: 40px;
+				width: 140px;
+				line-height: 40px;
+				font-size: 16px;
+				border: 1px solid #E4E4E4;
+				text-align: center;
+				border-radius: 5px;
+				cursor: pointer
+			}
+
+			.operate-active {
+				height: 40px;
+				width: 140px;
+				line-height: 40px;
+				font-size: 16px;
+				text-align: center;
+				background: #169bd5;
+				color: #FFFFFF;
+				border-radius: 5px;
+				cursor: pointer
+			}
+
+			.body-item {
+				width: 24.8%;
+			}
+
+			.item {
+				height: 46px;
+				width: 99%;
+				border: 1px solid #e4e4e4;
+				text-align: center;
+				line-height: 46px;
+				border-top: none;
+				position: relative;
+			}
+
+			.del,
+			.edit {
+				height: 22px;
+				width: 60px;
+				background: rgba(0, 0, 0, .2);
+				font-size: 12px;
+				line-height: 22px;
+				color: #CC0000;
+				position: absolute;
+				top: 0;
+				right: 0;
+				cursor: pointer
+			}
+
+			.loudong-active {
+				background: #669999;
+			}
+
+			.btn {
+				cursor: pointer
+			}
+
+			/* 	这里面可以自定义字体样式等，都是CSS基础 */
+			.login {
+				position: fixed;
+				background-color: #ffffff;
+				border-radius: 0.25rem;
+				height: 200px;
+				width: 400px;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 1000;
+				box-sizing: border-box;
+			}
+
+			.login-header {
+				height: 40px;
+				width: 100%;
+				line-height: 40px;
+				text-align: center;
+				font-size: 16px;
+				font-weight: 600;
+				border-bottom: 1px solid #E4E4E4;
+			}
+
+			.userIpt-box {
+				height: 100px;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.userIpt {
+				height: 40px;
+				width: 80%;
+				margin: 0 auto;
+				border: 1px solid #E4E4E4;
+				text-indent: 20px;
+			}
+
+			.user-operate {
+				height: 56px;
+				width: 80%;
+				margin: 0 auto;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.over {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				opacity: 0.7;
+				filter: alpha(opacity=70);
+				top: 0;
+				left: 0;
+				z-index: 999;
+				background-color: #111111;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="content">
+				<div class="operate-box">
+					<div class="operate">
+						<div :class="activeIdx==index?'operate-active':'operate-item'" @click="changeOperate(index)" v-for="(item,index) in operates"
+						 :key="index">
+							{{item}}
+						</div>
+					</div>
+				</div>
+				<div class="header">
+					<div class="header-item">
+						楼栋
+					</div>
+					<div class="header-item">
+						单元
+					</div>
+					<div class="header-item">
+						楼层
+					</div>
+					<div class="header-item">
+						房号
+					</div>
+				</div>
+				<div class="body">
+					<div class="body-item">
+						<div :class="initdata.loudong==item.name?'loudong-active':''" @click="chooseld(item)" class="item" v-for="(item,index) in fangwuxinx"
+						 :key="index">
+							{{item.nmvvoj}}
+							<div class="del" v-show="activeIdx==0" @click.stop="delld(index,item)">
+								删除
+							</div>
+							<div class="edit" v-show="activeIdx==1" @click.stop="editld(index,item)">
+								编辑
+							</div>
+						</div>
+						<div class="item btn" @click="addld">
+							+增加楼栋
+						</div>
+					</div>
+					<div class="body-item">
+						<div :class="initdata.danyuan==item.name?'loudong-active':''" @click="choosedy(item)" class="item" v-for="(item,index) in danyuans"
+						 :key="index">
+							{{item.name}}
+							<div class="del" v-show="activeIdx==0" @click.stop="deldy(index,item)">
+								删除
+							</div>
+							<div class="edit" v-show="activeIdx==1" @click.stop="editdy(index,item)">
+								编辑
+							</div>
+						</div>
+						<div class="item btn" @click="adddy">
+							+增加单元
+						</div>
+					</div>
+					<div class="body-item">
+						<div class="item" :class="initdata.loucen==item.name?'loudong-active':''" @click="chooselc(item)" v-for="(item,index) in loucens"
+						 :key="index">
+							{{item.name}}
+							<div class="del" v-show="activeIdx==0" @click.stop="dellc(index,item)">
+								删除
+							</div>
+							<div class="edit" v-show="activeIdx==1" @click.stop="editlc(index,item)">
+								编辑
+							</div>
+						</div>
+						<div class="item btn" @click="addlc">
+							+增加楼层
+						</div>
+					</div>
+					<div class="body-item">
+						<div class="item" :class="initdata.fanghao==item.name?'loudong-active':''" @click="choosefh(item)" v-for="(item,index) in fanghaos"
+						 :key="index">
+							{{item.name}}
+							<div class="del" v-show="activeIdx==0" @click.stop="delfh(index,item)">
+								删除
+							</div>
+							<div class="edit" v-show="activeIdx==1" @click.stop="editfh(index,item)">
+								编辑
+							</div>
+						</div>
+						<div class="item btn" @click="addfh">
+							+增加房屋
+						</div>
+					</div>
+				</div>
+				<div class="operate-bottom">
+					<div class="operate-bottom-inside">
+						<div class="operate-item">
+							取消
+						</div>
+						<div class="operate-active" @click="preserve">
+							保存
+						</div>
+					</div>
+				</div>
+				<!-- 弹窗模块 -->
+				<div v-show="popup">
+					<!--这里是要展示的内容层-->
+					<div class="login">
+						<div class="login-header">
+							{{popupType}}
+						</div>
+						<div class="userIpt-box">
+							<input type="text" class="userIpt" v-model="popupText" :value="popupText" />
+						</div>
+						<div class="user-operate">
+							<div class="operate-item" @click="cancel">
+								取消
+							</div>
+							<div class="operate-active" @click="revise">
+								保存
+							</div>
+						</div>
+					</div>
+					<!--这里是半透明背景层-->
+					<div class="over"></div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			// 创建vue实例化对象
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					popup: false,
+					popupType: "添加楼栋",
+					popupText: "3栋",
+					activeIdx: 0,
+					editIndex:null,//当前编辑索引
+					operates: [
+						"删除",
+						"编辑"
+					],
+					//初始化选中
+					initdata: {
+						loudong: '楼栋1',
+						danyuan: '1单元',
+						loucen: '2层',
+						fanghao: '203'
+					},
+					// 数据创建
+					fangwuxinx: [{
+							name: '楼栋1',
+							id: "loudong1",
+							"nmvvoj": '1栋',
+							"danyuan": [{
+									"name": '1单元',
+									"loucen": [{
+											"name": '1层',
+											"fanghao": [{
+													name: "101"
+												},
+												{
+													name: "102"
+												},
+												{
+													name: "103"
+												},
+												{
+													name: "104"
+												},
+												{
+													name: "105"
+												}
+											]
+										},
+										{
+											"name": '2层',
+											"fanghao": [{
+													name: "201"
+												},
+												{
+													name: "202"
+												},
+												{
+													name: "203"
+												},
+												{
+													name: "204"
+												},
+												{
+													name: "205"
+												}
+											]
+										}
+									],
+								},
+								{
+									"name": '2单元',
+									"loucen": [{
+											"name": '1层',
+											"fanghao": [{
+													name: "101"
+												},
+												{
+													name: "102"
+												},
+												{
+													name: "103"
+												}
+											]
+										},
+										{
+											"name": '2层',
+											"fanghao": [{
+													name: "201"
+												},
+												{
+													name: "202"
+												},
+												{
+													name: "203"
+												}
+											]
+										},
+										{
+											"name": '3层',
+											"fanghao": [{
+													name: "301"
+												},
+												{
+													name: "302"
+												},
+												{
+													name: "303"
+												}
+											]
+										}
+									],
+								}
+							],
+						},
+						{
+							name: '楼栋2',
+							id: "loudong2",
+							"nmvvoj": '2栋',
+							"danyuan": [{
+								"name": '1单元',
+								"loucen": [{
+									"name": '1层',
+									"fanghao": [{
+											name: "101"
+										},
+										{
+											name: "102"
+										},
+										{
+											name: "103"
+										}
+									]
+								}],
+							}],
+						}
+					],
+					danyuans: [],
+					loucens: [],
+					fanghaos: []
+
+				},
+				computed: {
+					loudong: function() {
+						return this.fangwuxinx
+					}
+				},
+				methods: {
+					//选择楼栋
+					chooseld(item) {
+						if (this.initdata.loudong == item.name) return;
+						this.initdata.loudong = item.name;
+						if (item.danyuan.length) {
+							this.chooseldInit()
+						} else {
+							this.danyuans = [];
+							this.loucens = [];
+							this.fanghaos = [];
+						}
+					},
+					//切换删除编辑
+					changeOperate(index) {
+						this.activeIdx = index;
+					},
+					//选择单元
+					choosedy(item) {
+						if (this.initdata.danyuan == item.name) return;
+						this.initdata.danyuan = item.name;
+						if (item.loucen.length) {
+							this.choosedyInit()
+						} else {
+							this.loucens = [];
+							this.fanghaos = [];
+						}
+					},
+					//删除楼栋
+					delld(index, item) {
+						let loudong = this.loudong;
+						loudong.splice(index, 1);
+						if (loudong.length) {
+							this.initdata.loudong = loudong[0].name
+							this.danyuans = loudong[0].danyuan;
+							this.initdata.danyuan = loudong[0].danyuan[0].name;
+							this.loucens = loudong[0].danyuan[0].loucen;
+							this.initdata.loucen = loudong[0].danyuan[0].loucen[0].name;
+							this.fanghaos = loudong[0].danyuan[0].loucen[0].fanghao;
+							this.initdata.fanghao = loudong[0].danyuan[0].loucen[0].fanghao[0].name;
+							return
+						}
+						this.danyuans = []
+						this.loucens = [];
+						this.fanghaos = [];
+					},
+					//删除单元
+					deldy(index, item) {
+						let activeld = this.getactiveld();
+						activeld.danyuan.splice(index, 1);
+						if (activeld.danyuan.length) {
+							this.initdata.danyuan = activeld.danyuan[0].name;
+							this.loucens = activeld.danyuan[0].loucen;
+							this.initdata.loucen = activeld.danyuan[0].loucen[0].name;
+							this.fanghaos = activeld.danyuan[0].loucen[0].fanghao;
+							this.initdata.fanghao = activeld.danyuan[0].loucen[0].fanghao[0].name;
+							return
+						}
+						this.loucens = [];
+						this.fanghaos = [];
+					},
+					//删除楼层
+					dellc(index, item) {
+						let activedy = this.getactivedy();
+						activedy.loucen.splice(index, 1);
+						if (activedy.loucen.length) {
+							this.initdata.loucen = activedy.loucen[0].name;
+							this.fanghaos = activedy.loucen[0].fanghao;
+							this.initdata.fanghao = activedy.loucen[0].fanghao[0].name;
+							return
+						}
+						this.loucens = [];
+						this.fanghaos = [];
+					},
+					//删除房号
+					delfh(index, item) {
+						console.log(item)
+						let activelc = this.getactivelc();
+						activelc.fanghao.splice(index, 1);
+						if (this.initdata.fanghao == item.name) {
+							this.initdata.fanghao = activelc.fanghao[0].name;
+						}
+					},
+					//选择楼层
+					chooselc(item) {
+						if (this.initdata.loucen == item.name) return;
+						this.initdata.loucen = item.name;
+						if (item.fanghao.length) {
+							this.chooselcInit()
+						} else {
+							this.fanghaos = [];
+						}
+					},
+					//选择房号
+					choosefh(item) {
+						if (this.initdata.fanghao == item.name) return;
+						this.initdata.fanghao = item.name;
+					},
+					//添加楼栋
+					addld() {
+						let loudong = this.loudong;
+						this.popup = true;
+						this.popupType = "增加楼栋";
+						this.popupText = (loudong.length + 1) + '栋'
+					},
+					//确定增加
+					revise() {
+						let popupText=this.popupText;
+						if(popupText=='') return this.popup = false;
+						if (this.popupType == "增加楼栋") {
+							let loudong = this.loudong;
+								loudong.push({
+									name: '楼栋' + (loudong.length + 1),
+									id: "loudong" + (loudong.length + 1),
+									"nmvvoj":popupText,
+									"danyuan": []
+								})
+							this.popup = false;
+							return
+						}
+						if(this.popupType == "增加单元"){
+							let initdata = this.initdata;
+							let danyuan = this.danyuans;
+							let activeld = this.getactiveld(); //当前点击楼栋
+							activeld.danyuan.push({
+								loucen: [],
+								name: popupText
+							})
+							this.danyuans = activeld.danyuan;
+							this.popup = false;
+							return
+						}
+						if(this.popupType == "增加楼层"){
+							let initdata = this.initdata;
+							let loucen = this.loucens;
+							let activedy = this.getactivedy(); //当前点击单元
+							activedy.loucen.push({
+								fanghao: [],
+								name:popupText
+							})
+							this.loucens = activedy.loucen
+							this.popup = false;
+							return
+						}
+						if(this.popupType == "增加房屋"){
+							let initdata = this.initdata;
+							let fanghao = this.fanghaos;
+							let activelc = this.getactivelc(); //当前楼层
+							let str = activelc.name;
+							let num = str.replace(/[^0-9]/ig, "");
+							activelc.fanghao.push({
+								name:popupText
+							})
+							this.fanghaos = activelc.fanghao
+							this.popup = false;
+							return
+						}
+						if(this.popupType=="编辑楼栋"){
+							let loudong=this.loudong;
+							let editIndex=this.editIndex;
+							loudong[editIndex].nmvvoj=popupText;
+							this.popup = false;
+							return
+						}
+						if(this.popupType=="编辑单元"){
+							let activeld=this.getactiveld();
+							let editIndex=this.editIndex;
+							activeld.danyuan[editIndex].name=popupText;
+							this.popup = false;
+							return
+						}
+						if(this.popupType=="编辑楼层"){
+							let activedy=this.getactivedy();
+							let editIndex=this.editIndex;
+							activedy.loucen[editIndex].name=popupText;
+							this.popup = false;
+							return
+						}
+						if(this.popupType=="编辑房屋"){
+							let activelc=this.getactivelc();
+							let editIndex=this.editIndex;
+							activelc.fanghao[editIndex].name=popupText;
+							this.popup = false;
+							return
+						}
+					},
+					//编辑楼栋
+					editld(index,item){
+						this.popup = true;
+						this.popupType = "编辑楼栋";
+						this.popupText = item.nmvvoj;
+						this.editIndex=index;
+					},
+					//编辑单元
+					editdy(index,item){
+						this.popup = true;
+						this.popupType = "编辑单元";
+						this.popupText = item.name;
+						this.editIndex=index;
+					},
+					//编辑楼层
+					editlc(index,item){
+						this.popup = true;
+						this.popupType = "编辑楼层";
+						this.popupText = item.name;
+						this.editIndex=index;
+					},
+					//编辑房屋
+					editfh(index,item){
+						this.popup = true;
+						this.popupType = "编辑房屋";
+						this.popupText = item.name;
+						this.editIndex=index;
+					},
+					//取消增加
+					cancel() {
+						this.popup = false;
+					},
+					//增加单元
+					adddy() {
+						let initdata = this.initdata;
+						let danyuan = this.danyuans;
+						let activeld = this.getactiveld(); //当前点击楼栋
+						this.popup = true;
+						this.popupType = "增加单元";
+						this.popupText = (danyuan.length + 1) + "单元"
+					},
+					//添加楼层
+					addlc() {
+						let initdata = this.initdata;
+						let loucen = this.loucens;
+						let activedy = this.getactivedy(); //当前点击单元
+						this.popup = true;
+						this.popupType = "增加楼层";
+						this.popupText = (loucen.length + 1) + "层"
+					},
+					addfh() {
+						let initdata = this.initdata;
+						let fanghao = this.fanghaos;
+						let activelc = this.getactivelc(); //当前楼层
+						let str = activelc.name;
+						let num = str.replace(/[^0-9]/ig, "");
+						this.popup = true;
+						this.popupType = "增加房屋";
+						this.popupText = num + "0" + (fanghao.length + 1)
+					},
+					//获取当前点击状态楼栋
+					getactiveld() {
+						let initdata = this.initdata;
+						let loudong = this.loudong;
+						let activeld;
+						for (let i = 0; i < loudong.length; i++) {
+							if (initdata.loudong == loudong[i].name) {
+								activeld = loudong[i]
+							}
+						}
+						return activeld
+					},
+					//获取当前点击状态单元
+					getactivedy() {
+						let initdata = this.initdata;
+						let activeld = this.getactiveld();
+						let activedy;
+						for (let i = 0; i < activeld.danyuan.length; i++) {
+							if (initdata.danyuan == activeld.danyuan[i].name) {
+								activedy = activeld.danyuan[i]
+							}
+						}
+						return activedy
+					},
+					//获取当前点击状态楼层
+					getactivelc() {
+						let initdata = this.initdata;
+						let activedy = this.getactivedy();
+						let activelc;
+						for (let i = 0; i < activedy.loucen.length; i++) {
+							if (initdata.loucen == activedy.loucen[i].name) {
+								activelc = activedy.loucen[i]
+							}
+						}
+						return activelc
+					},
+					chooseldInit() {
+						//用Promise对象进行异步编程
+						new Promise((resolve, reject) => {
+							resolve(this.getactiveld())
+						}).then((result) => {
+							this.danyuans = result.danyuan;
+							this.initdata.danyuan = result.danyuan[0].name;
+						}).then(() => {
+							new Promise((resolve, reject) => {
+								resolve(this.getactivedy())
+							}).then((result) => {
+								this.loucens = result.loucen;
+								this.initdata.loucen = result.loucen[0].name;
+							}).then(() => {
+								new Promise((resolve, reject) => {
+									resolve(this.getactivelc())
+								}).then((result) => {
+									this.fanghaos = result.fanghao;
+									this.initdata.fanghao = result.fanghao[0].name;
+								})
+							})
+						})
+					},
+					choosedyInit() {
+						new Promise((resolve, reject) => {
+							resolve(this.getactivedy())
+						}).then((result) => {
+							this.loucens = result.loucen;
+							this.initdata.loucen = result.loucen[0].name;
+						}).then(() => {
+							new Promise((resolve, reject) => {
+								resolve(this.getactivelc())
+							}).then((result) => {
+								this.fanghaos = result.fanghao;
+								this.initdata.fanghao = result.fanghao[0].name;
+							})
+						})
+					},
+					chooselcInit() {
+						new Promise((resolve, reject) => {
+							resolve(this.getactivelc())
+						}).then((result) => {
+							this.fanghaos = result.fanghao;
+							this.initdata.fanghao = result.fanghao[0].name;
+						})
+					},
+					//初始化页面
+					initpage() {
+						let loudong = this.loudong
+						let danyuan;
+						let loucen;
+						let fanghao;
+						for (let i = 0; i < loudong.length; i++) {
+							if (this.initdata.loudong == loudong[i].name) {
+								danyuan = loudong[i].danyuan
+							}
+						}
+						for (let i = 0; i < danyuan.length; i++) {
+							if (this.initdata.danyuan == danyuan[i].name) {
+								loucen = danyuan[i].loucen
+							}
+						}
+						for (let i = 0; i < loucen.length; i++) {
+							if (this.initdata.loucen == loucen[i].name) {
+								fanghao = loucen[i].fanghao
+							}
+						}
+						this.danyuans = danyuan;
+						this.loucens = loucen;
+						this.fanghaos = fanghao;
+					},
+					//最终保存数据
+					preserve(){
+						let loudong=this.loudong;
+						console.log('最终提交数据',loudong)
+					}
+
+				},
+				mounted() {
+					// 页面初始化调用
+					this.initpage()
+				}
+			})
+		</script>
+	</body>
+</html>
